@@ -163,14 +163,16 @@ public class MainActivity extends AppCompatActivity {
                         mDrawerLayout.closeDrawers();
 
                         if(menuItem.getItemId() == R.id.nav_home){
-                            System.out.println("Hello!");
                             myWebView.loadUrl("https://www.amazon.com");
                         }
                         if(menuItem.getItemId() == R.id.nav_orders){
                             myWebView.loadUrl("https://www.amazon.com/orders");
                         }
                         if(menuItem.getItemId() == R.id.nav_lists){
-                            myWebView.loadUrl("https://www.amazon.com/lists");
+                            myWebView.loadUrl("https://www.amazon.com/gp/aw/ls");
+                        }
+                        if(menuItem.getItemId() == R.id.nav_account){
+                            myWebView.loadUrl("https://www.amazon.com/your-account");
                         }
 
                         return true;
