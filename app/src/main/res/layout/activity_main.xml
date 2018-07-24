@@ -5,7 +5,10 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    android:statusBarColor="@color/colorPrimary"
+    android:windowTranslucentStatus="true"
+    android:theme="@style/AppTheme">
 
     <ProgressBar
         android:id="@+id/progressBar1"
@@ -39,8 +42,7 @@
             android:elevation="3dp"
             android:fadingEdgeLength="6dp"
             android:theme="@style/AppTheme"
-            app:titleTextColor="@android:color/white"
-            tools:titleTextColor="@android:color/white" />
+            app:titleTextColor="@android:color/white" />
 
     </FrameLayout>
 
@@ -51,9 +53,5 @@
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
         app:menu="@menu/drawer_view"/>
-
-
-
-
 
 </android.support.v4.widget.DrawerLayout>
