@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                 );
-                if(myWebView.getProgress() < 30){
+
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
@@ -110,8 +110,7 @@ public class MainActivity extends AppCompatActivity {
                             myWebView.loadUrl("javascript: var elem = document.getElementById(\"navbar\");\n" +
                                     "elem.parentNode.removeChild(elem);");
                         }
-                    }, 1000);
-                }
+                    }, 800);
 
             }
 
