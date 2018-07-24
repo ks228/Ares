@@ -59,33 +59,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onPageFinished(WebView view, String url){
              super.onPageFinished(myWebView, url);
-                //System.out.println("Removed from page finish");
-
-//                new Handler().postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        myWebView.loadUrl("javascript: var elem = document.getElementById(\"navbar\");\n" +
-//                                "elem.parentNode.removeChild(elem);");
-//                    }
-//                }, 10);
-//
-//                new Handler().postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        spinner.setVisibility(View.GONE);
-//                        myWebView.setVisibility(View.VISIBLE);
-//                    }
-//                }, 2500);
-
-/*                myWebView.loadUrl("javascript: var elem = document.getElementById(\"navbar\");\n" +
-                        "elem.parentNode.removeChild(elem);");
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        spinner.setVisibility(View.GONE);
-                        myWebView.setVisibility(View.VISIBLE);
-                    }
-                }, 1000);*/
             }
 
             @Override
@@ -101,9 +74,6 @@ public class MainActivity extends AppCompatActivity {
                         if(myWebView.getProgress() < 30){
                             handler.postDelayed(this, 100);
                         }else{
-//                            System.out.println("Removed from page start");
-//                            myWebView.loadUrl("javascript: var elem = document.getElementById(\"navbar\");\n" +
-//                                    "elem.parentNode.removeChild(elem);");
                             new Handler().postDelayed(new Runnable() {
                             @Override
                             public void run() {
@@ -115,23 +85,6 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 }, 100);
-
-//                new Handler().postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-//                    myWebView.loadUrl("javascript: var elem = document.getElementById(\"navbar\");\n" +
-//                            "elem.parentNode.removeChild(elem);");
-//                 }
-//                 }, 1500);
-//
-//                new Handler().postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        spinner.setVisibility(View.GONE);
-//                        myWebView.setVisibility(View.VISIBLE);
-//                    }
-//                }, 2000);
-
             }
 
             @Override
@@ -180,7 +133,6 @@ public class MainActivity extends AppCompatActivity {
                         if(menuItem.getItemId() == R.id.nav_account){
                             myWebView.loadUrl("https://www.amazon.com/your-account");
                         }
-
                         return true;
                     }
                 });
@@ -221,8 +173,4 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
-
-
-
-
 }
