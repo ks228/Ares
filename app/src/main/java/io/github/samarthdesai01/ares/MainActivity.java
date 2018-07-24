@@ -32,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
     private WebView myWebView;
     private ProgressBar spinner;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
