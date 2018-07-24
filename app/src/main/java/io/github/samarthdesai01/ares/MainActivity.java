@@ -17,10 +17,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.ValueCallback;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
+import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -28,11 +32,11 @@ public class MainActivity extends AppCompatActivity {
     private WebView myWebView;
     private ProgressBar spinner;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         changeStatusBarColor();
-
         setContentView(R.layout.activity_main);
 
         //Set custom toolbar as the main action bar
@@ -87,19 +91,31 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onLoadResource(WebView view, String url) {
                 super.onLoadResource(view, url);
-                new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    myWebView.loadUrl("javascript: var elem = document.getElementById(\"navbar\");\n" +
-                            "elem.parentNode.removeChild(elem);");
-                 }
-                 }, 750);
+                myWebView.evaluateJavascript(
+                        "document.getElementById('nav-greeting-name').innerHTML",
+                        new ValueCallback<String>() {
+                            @Override
+                            public void onReceiveValue(String html) {
+                                if(!html.equals("null")){
+                                    setGreetingText(html);
+                                }
+                            }
+                        }
+                );
+                if(myWebView.getProgress() < 30){
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            //Remove the header for every page we visit
+                            myWebView.loadUrl("javascript: var elem = document.getElementById(\"navbar\");\n" +
+                                    "elem.parentNode.removeChild(elem);");
+                        }
+                    }, 1000);
+                }
+
             }
 
-
-
         });
-
 
         WebSettings webSettings = myWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
@@ -139,13 +155,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void changeStatusBarColor()
-    {
-        Window window = getWindow();
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        window.setStatusBarColor(Color.parseColor("#FF303F9F"));
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -172,4 +181,27 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
+    public void changeStatusBarColor()
+    {
+        Window window = getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.setStatusBarColor(Color.parseColor("#FF303F9F"));
+    }
+
+    public void setGreetingText(String html){
+        TextView userGreeting;
+        userGreeting = findViewById(R.id.greetingText);
+        String drawerGreeting = html;
+        //Trim out the \n tags at the start and end
+        drawerGreeting = drawerGreeting.substring(3,drawerGreeting.length()-16);
+        //Trim excess space
+        drawerGreeting = drawerGreeting.trim();
+        //Remove the <b> tags
+        drawerGreeting = drawerGreeting.replace("\\u003Cb>", "");
+        drawerGreeting = drawerGreeting.replace("\\u003C/b>", "");
+
+        userGreeting.setText(drawerGreeting);
+    }
+
 }

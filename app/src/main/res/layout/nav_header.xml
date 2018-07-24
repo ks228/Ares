@@ -9,9 +9,10 @@
     android:gravity="bottom">
 
     <TextView
+        android:id="@+id/greetingText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hello, Samarth"
+        android:text="Hello, Guest"
         android:textSize="24sp"
         android:textColor="@android:color/white"/>
 
