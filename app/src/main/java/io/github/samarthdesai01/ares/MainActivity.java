@@ -137,6 +137,9 @@ public class MainActivity extends AppCompatActivity {
                         if(menuItem.getItemId() == R.id.nav_home){
                             myWebView.loadUrl("https://www.amazon.com");
                         }
+                        if(menuItem.getItemId() == R.id.nav_cart){
+                            myWebView.loadUrl("https://www.amazon.com/gp/aw/c/ref=navm_hdr_cart");
+                        }
                         if(menuItem.getItemId() == R.id.nav_orders){
                             myWebView.loadUrl("https://www.amazon.com/orders");
                         }
