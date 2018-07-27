@@ -1,22 +1,29 @@
 package io.github.samarthdesai01.ares;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Handler;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.ValueCallback;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -31,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout mDrawerLayout;
     private WebView myWebView;
     private ProgressBar spinner;
+    private String mSearchTerm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -157,6 +165,68 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.search_menu, menu);
+        final MenuItem searchItem = menu.findItem(R.id.search);
+        final SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        final SearchView searchView =
+                (SearchView) MenuItemCompat.getActionView(searchItem);
+
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(getComponentName()));
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String queryText) {
+                System.out.println(queryText);
+                //Hide the keyboard on button press
+                try{
+                    InputMethodManager inputManager = (InputMethodManager)
+                            getSystemService(Context.INPUT_METHOD_SERVICE);
+
+                    inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),
+                            InputMethodManager.HIDE_NOT_ALWAYS);
+                    searchView.setIconified(true);
+                    MenuItemCompat.collapseActionView(searchItem);
+                    myWebView.loadUrl("https://www.amazon.com/gp/aw/s/ref=is_s?k="+queryText.replace(" ", "+"));
+                }catch(Exception e){
+
+                }
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                String newFilter = !TextUtils.isEmpty(newText) ? newText : null;
+                if (mSearchTerm == null && newFilter == null) {
+                    return true;
+                }
+                if (mSearchTerm != null && mSearchTerm.equals(newFilter)) {
+                    return true;
+                }
+                mSearchTerm = newFilter;
+                System.out.println(newText); //handle this
+                return true;
+            }
+        });
+
+        MenuItemCompat.OnActionExpandListener expandListener = new MenuItemCompat.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem menuItem) {
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem menuItem) {
+
+                return true;
+            }
+        };
+        MenuItemCompat.setOnActionExpandListener(searchItem, expandListener);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
@@ -204,5 +274,4 @@ public class MainActivity extends AppCompatActivity {
 
         userGreeting.setText(drawerGreeting);
     }
-
 }
