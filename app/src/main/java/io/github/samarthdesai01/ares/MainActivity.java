@@ -43,94 +43,27 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        changeStatusBarColor();
         setContentView(R.layout.activity_main);
 
-        //Set custom toolbar as the main action bar
+        changeStatusBarColor();
+        initializeSpinner();
+        initializeWebView();
+        initializeToolBar();
+        initializeDrawer();
+
+    }
+
+    public void initializeToolBar(){
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
+    }
 
-        //Create a webview
-        myWebView = (WebView)findViewById(R.id.amazonTest);
-
-        spinner = (ProgressBar)findViewById(R.id.progressBar1);
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        int padding = (int)(displayMetrics.widthPixels * .45);
-        spinner.setPadding(padding,displayMetrics.heightPixels/2,padding,displayMetrics.heightPixels/2);
-
-        //Enable javascript for the webview
-        myWebView.setWebViewClient(new WebViewClient(){
-            @Override
-            public void onPageFinished(WebView view, String url){
-             super.onPageFinished(myWebView, url);
-            }
-
-            @Override
-            public void onPageStarted(WebView view, String url, Bitmap favicon){
-                super.onPageStarted(myWebView, url, favicon);
-                myWebView.setVisibility(View.GONE);
-                spinner.setVisibility(View.VISIBLE);
-
-                final Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(myWebView.getProgress() < 30){
-                            handler.postDelayed(this, 100);
-                        }else{
-                            new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                spinner.setVisibility(View.GONE);
-                                myWebView.setVisibility(View.VISIBLE);
-                            }
-                            }, 750);
-
-                        }
-                    }
-                }, 100);
-            }
-
-            @Override
-            public void onLoadResource(WebView view, String url) {
-                super.onLoadResource(view, url);
-                myWebView.evaluateJavascript(
-                        "document.getElementById('nav-greeting-name').innerHTML",
-                        new ValueCallback<String>() {
-                            @Override
-                            public void onReceiveValue(String html) {
-                                if(!html.equals("null")){
-                                    setGreetingText(html);
-                                }
-                            }
-                        }
-                );
-
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            //Remove the header for every page we visit
-                            myWebView.loadUrl("javascript: var elem = document.getElementById(\"navbar\");\n" +
-                                    "elem.parentNode.removeChild(elem);");
-                        }
-                    }, 800);
-
-            }
-
-        });
-
-        WebSettings webSettings = myWebView.getSettings();
-        webSettings.setJavaScriptEnabled(true);
-
-        myWebView.loadUrl("https://www.amazon.com/");
-
+    public void initializeDrawer(){
         //Navigation Drawer Layout
         mDrawerLayout = findViewById(R.id.drawer_layout);
-
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
@@ -161,7 +94,82 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
+    }
 
+    public void initializeWebView(){
+        myWebView = (WebView)findViewById(R.id.amazonTest);
+        //Enable javascript for the webview
+        myWebView.setWebViewClient(new WebViewClient(){
+            @Override
+            public void onPageFinished(WebView view, String url){
+                super.onPageFinished(myWebView, url);
+            }
+
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon){
+                super.onPageStarted(myWebView, url, favicon);
+                myWebView.setVisibility(View.GONE);
+                spinner.setVisibility(View.VISIBLE);
+
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(myWebView.getProgress() < 30){
+                            handler.postDelayed(this, 100);
+                        }else{
+                            new Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    spinner.setVisibility(View.GONE);
+                                    myWebView.setVisibility(View.VISIBLE);
+                                }
+                            }, 750);
+
+                        }
+                    }
+                }, 100);
+            }
+
+            @Override
+            public void onLoadResource(WebView view, String url) {
+                super.onLoadResource(view, url);
+                myWebView.evaluateJavascript(
+                        "document.getElementById('nav-greeting-name').innerHTML",
+                        new ValueCallback<String>() {
+                            @Override
+                            public void onReceiveValue(String html) {
+                                if(!html.equals("null")){
+                                    setGreetingText(html);
+                                }
+                            }
+                        }
+                );
+
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        //Remove the header for every page we visit
+                        myWebView.loadUrl("javascript: var elem = document.getElementById(\"navbar\");\n" +
+                                "elem.parentNode.removeChild(elem);");
+                    }
+                }, 800);
+
+            }
+        });
+
+        WebSettings webSettings = myWebView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+
+        myWebView.loadUrl("https://www.amazon.com/");
+    }
+
+    public void initializeSpinner(){
+        spinner = (ProgressBar)findViewById(R.id.progressBar1);
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int padding = (int)(displayMetrics.widthPixels * .45);
+        spinner.setPadding(padding,displayMetrics.heightPixels/2,padding,displayMetrics.heightPixels/2);
     }
 
     @Override
