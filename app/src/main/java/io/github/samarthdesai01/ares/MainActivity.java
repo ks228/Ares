@@ -152,6 +152,14 @@ public class MainActivity extends AppCompatActivity {
                         //Remove the header for every page we visit
                         myWebView.loadUrl("javascript: var elem = document.getElementById(\"navbar\");\n" +
                                 "elem.parentNode.removeChild(elem);");
+                        //Remove the footer for every page we visit
+                        myWebView.loadUrl("javascript: var elem = document.getElementById('gwm-Nav-footer');\n" +
+                                "elem.parentNode.removeChild(elem);");
+                        myWebView.loadUrl("javascript: var elem = document.getElementById('bottom');\n" +
+                                "elem.parentNode.removeChild(elem);");
+                        myWebView.loadUrl("javascript: var elem = document.getElementById('nav-ftr');\n" +
+                                "elem.parentNode.removeChild(elem);");
+
                     }
                 }, 800);
 
