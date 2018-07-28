@@ -283,9 +283,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public Intent updateIntent(){
+        String currentURL = myWebView.getUrl();
+        //strip the extraneous ref header on the URL for shorter links to send
+        if(currentURL.contains("ref="))
+            currentURL = currentURL.substring(0, currentURL.indexOf("ref="));
+
         Intent sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND);
-        sendIntent.putExtra(Intent.EXTRA_TEXT, myWebView.getUrl());
+        sendIntent.putExtra(Intent.EXTRA_TEXT, currentURL);
         sendIntent.setType("text/plain");
         return sendIntent;
     }
