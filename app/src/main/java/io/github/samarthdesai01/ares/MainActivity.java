@@ -2,9 +2,10 @@ package io.github.samarthdesai01.ares;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -12,8 +13,8 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.SearchView;
+import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -31,14 +32,13 @@ import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
 public class MainActivity extends AppCompatActivity {
 
     private DrawerLayout mDrawerLayout;
     private WebView myWebView;
     private ProgressBar spinner;
     private String mSearchTerm;
+    private ShareActionProvider mShareActionProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,16 +115,18 @@ public class MainActivity extends AppCompatActivity {
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        if(myWebView.getProgress() < 30){
+                        if(myWebView.getProgress() < 35){
                             handler.postDelayed(this, 100);
                         }else{
                             new Handler().postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
+                                    if (mShareActionProvider != null)
+                                        mShareActionProvider.setShareIntent(updateIntent());
                                     spinner.setVisibility(View.GONE);
                                     myWebView.setVisibility(View.VISIBLE);
                                 }
-                            }, 750);
+                            }, 800);
 
                         }
                     }
@@ -182,7 +184,10 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+
+        //Code for setting SearchView behavior
         getMenuInflater().inflate(R.menu.search_menu, menu);
+
         final MenuItem searchItem = menu.findItem(R.id.search);
         final SearchManager searchManager =
                 (SearchManager) getSystemService(Context.SEARCH_SERVICE);
@@ -239,6 +244,14 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         MenuItemCompat.setOnActionExpandListener(searchItem, expandListener);
+
+
+        //Code for Share Button
+        // Locate MenuItem with ShareActionProvider
+        MenuItem item = menu.findItem(R.id.share_item);
+        // Fetch and store ShareActionProvider
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -267,6 +280,14 @@ public class MainActivity extends AppCompatActivity {
 
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    public Intent updateIntent(){
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, myWebView.getUrl());
+        sendIntent.setType("text/plain");
+        return sendIntent;
     }
 
     public void changeStatusBarColor()
