@@ -1,7 +1,7 @@
 # Ares
 
 ## Description
-Ares is a retooling of the Amazon Shopping app for Android focused on removing much of the unnecessary clutter and features that are seldomly used. Ares offers the core Amazon experience wrapped inside native Material Design UI components allowing for a more cohesive user experience. 
+Ares is a fresh implementation of the Amazon Shopping app for Android focused on removing much of the unnecessary clutter and features that are seldomly used. Ares offers the core Amazon experience wrapped inside native Material Design UI components allowing for a more cohesive user experience. 
 
 ## Screenshots
 [<img src="https://image.ibb.co/msyhYo/Ares_Home_Clean.jpg" width=200>]()
