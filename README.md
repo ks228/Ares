@@ -1,6 +1,4 @@
 # Ares
-
-## Description
 Ares is a fresh implementation of the Amazon Shopping app for Android focused on removing much of the unnecessary clutter and features that are seldomly used. Ares offers the core Amazon experience wrapped inside native Material Design UI components allowing for a more cohesive user experience. 
 
 ## Screenshots
