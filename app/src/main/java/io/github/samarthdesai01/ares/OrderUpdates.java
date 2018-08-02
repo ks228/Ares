@@ -1,14 +1,21 @@
 package io.github.samarthdesai01.ares;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.WindowManager;
@@ -34,6 +41,7 @@ import java.util.List;
 public class OrderUpdates extends Service {
     int numAttempts = 0;
     String login[];
+    WebView wv;
     public OrderUpdates() {
     }
 
@@ -41,6 +49,18 @@ public class OrderUpdates extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
+
+        //Code for initializing Notification Channels or Oreo and above.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "Order Updates";
+            String description = "Get notified regarding active orders";
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel channel = new NotificationChannel("orderUpdates", name, importance);
+            channel.setDescription(description);
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+
 
         System.out.println("Started command");
 
@@ -76,7 +96,7 @@ public class OrderUpdates extends Service {
         params.width = 0;
         params.height = 0;
 
-        final WebView wv = new WebView(getBaseContext());
+        wv = new WebView(getBaseContext());
         WebSettings webSettings = wv.getSettings();
         webSettings.setJavaScriptEnabled(true);
 
@@ -116,9 +136,6 @@ public class OrderUpdates extends Service {
                                     }
                                 }
                             });
-
-
-                    //stopSelf();
                 }
 
             }
@@ -150,6 +167,7 @@ public class OrderUpdates extends Service {
             @Override
             public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
                 Log.d("Error", "loading web view: request: " + request + " error: " + error);
+                stopSelf();
             }
 
         });
@@ -182,7 +200,8 @@ public class OrderUpdates extends Service {
 
     @Override
     public void onDestroy(){
-        System.out.println("Goodbye Friends");
+        wv.destroy();
+        System.out.println("Destroying Process");
     }
 
     public void processPackageInfo(String orderPageHTML){
@@ -233,15 +252,27 @@ public class OrderUpdates extends Service {
         if(packages.size() != 0){
             for(PackageInfo p : packageInfo){ //Loop through all active packages
                 for(PackageInfo previousp : packages){
-                    if(p.packageName.equals(previousp.packageName)){//Check if it's the same package
+                    if(p.packageName.equals(previousp.packageName)){
+                        NotificationCompat.Builder mBuilder;
+                        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+                        //Check if it's the same package
                         if(p.packagePrimaryStatus!= null && previousp.packagePrimaryStatus != null){
                             if((!p.packagePrimaryStatus.equals(previousp.packagePrimaryStatus))){
                                 System.out.println("Status Update!");
-
+                                mBuilder = new NotificationCompat.Builder(this, "orderUpdates")
+                                        .setSmallIcon(R.drawable.ic_markunread_mailbox_black_24dp)
+                                        .setContentTitle(p.packagePrimaryStatus)
+                                        .setContentText(p.packageName)
+                                        .setPriority(NotificationCompat.PRIORITY_HIGH);
+                                notificationManager.notify(1, mBuilder.build());
                             }
                             else{
                                 if(previousp.packageShortStatus == null && p.packageShortStatus != null){
-                                    //Package has just shipped, notify
+                                    mBuilder = new NotificationCompat.Builder(this, "orderUpdates")
+                                            .setSmallIcon(R.drawable.ic_markunread_mailbox_black_24dp)
+                                            .setContentTitle("Your package has shipped")
+                                            .setContentText(p.packageName)
+                                            .setPriority(NotificationCompat.PRIORITY_HIGH);
                                 }
                             }
                         }
