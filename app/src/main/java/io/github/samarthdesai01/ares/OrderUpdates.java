@@ -202,7 +202,7 @@ public class OrderUpdates extends Service {
             String packageStatusString = e.getElementsByClass("js-shipment-info aok-hidden").select("span").attr("data-cookiepayload");
             Gson g = new Gson();
             PackageStatus packageStat = g.fromJson(packageStatusString, PackageStatus.class);
-            PackageInfo currentPackage = new PackageInfo(packageName, imageLink, packageStat.getPrimaryStatus());
+            PackageInfo currentPackage = new PackageInfo(packageName, imageLink, packageStat.getPrimaryStatus(), packageStat.getShortStatus());
             packages.add(currentPackage);
             System.out.println(currentPackage.toString());
 
@@ -233,12 +233,16 @@ public class OrderUpdates extends Service {
         if(packages.size() != 0){
             for(PackageInfo p : packageInfo){ //Loop through all active packages
                 for(PackageInfo previousp : packages){
-                    System.out.println(p.toString());
                     if(p.packageName.equals(previousp.packageName)){//Check if it's the same package
-                        if(p.packageStatus!= null && previousp.packageStatus != null){
-                            if(!p.packageStatus.equals(previousp.packageStatus)){
+                        if(p.packagePrimaryStatus!= null && previousp.packagePrimaryStatus != null){
+                            if((!p.packagePrimaryStatus.equals(previousp.packagePrimaryStatus))){
                                 System.out.println("Status Update!");
-                                break;
+
+                            }
+                            else{
+                                if(previousp.packageShortStatus == null && p.packageShortStatus != null){
+                                    //Package has just shipped, notify
+                                }
                             }
                         }
 

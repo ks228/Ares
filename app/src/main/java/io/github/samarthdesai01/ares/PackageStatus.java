@@ -8,6 +8,10 @@ public class PackageStatus {
         return primaryStatus;
     }
 
+    public String getShortStatus(){
+        return shortStatus;
+    }
+
     @Override
     public String toString(){
         return "Primary Status: " + primaryStatus + " Short Status: " + shortStatus;
