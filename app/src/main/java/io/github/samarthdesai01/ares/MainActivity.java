@@ -5,8 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
@@ -50,7 +52,45 @@ public class MainActivity extends AppCompatActivity {
         initializeWebView();
         initializeToolBar();
         initializeDrawer();
+        getWebsite();
+        if (android.os.Build.VERSION.SDK_INT >= 23 && !Settings.canDrawOverlays(this)) {   //Android M Or Over
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
+            startActivityForResult(intent, 100 );
+        }
+        if(Settings.canDrawOverlays(this)){
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    String[] array = new String[]{"",""};
+                    Intent in = new Intent(MainActivity.this,OrderUpdates.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putStringArray("loginInfo", array);
+                    in.putExtras(bundle);
+                    startService(in);
+                }
+            }, 1000);
+        }
+    }
 
+    private void getWebsite() {
+
+
+        /**
+         * CODE TO SUBMIT USERNAME
+         * document.getElementById('ap_email_login').value='samarthdesai@utexas.edu'; //Fill out text field
+         * var elems = document.getElementsByClassName('a-button-input'); //Find correct submit button
+         * elems[3].click() //Click to move on to password
+         * Now wait for redirect
+         * document.getElementById('ap_password).value='ur pass'
+         * document.getElementById('signInSubmit').click();
+         * should be signed in now, now get orders
+         *
+         * load amazon webpage, on page finished check if url contains openid or signin
+         * if true, then run first half of code to fill out form with your info
+         * then have code to check if url contains signin only and ap
+         * if true then hit signinsubmit
+         * then check if url contains orders if so then we can run our usual scraping code.
+         */
     }
 
     public void initializeToolBar(){
@@ -170,6 +210,7 @@ public class MainActivity extends AppCompatActivity {
 
         WebSettings webSettings = myWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
+
 
         myWebView.loadUrl("https://www.amazon.com/");
     }
