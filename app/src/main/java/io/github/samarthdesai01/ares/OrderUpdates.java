@@ -1,7 +1,9 @@
 package io.github.samarthdesai01.ares;
 
+import android.app.AlarmManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -11,6 +13,7 @@ import android.graphics.PixelFormat;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -201,6 +204,20 @@ public class OrderUpdates extends Service {
     @Override
     public void onDestroy(){
         wv.destroy();
+
+        String[] array = login;
+        Intent in = new Intent(this,OrderUpdates.class);
+        Bundle bundle = new Bundle();
+        bundle.putStringArray("loginInfo", array);
+        in.putExtras(bundle);
+
+        AlarmManager alarm = (AlarmManager)getSystemService(ALARM_SERVICE);
+        alarm.set(
+                alarm.RTC_WAKEUP,
+                System.currentTimeMillis() + (1000 * 60 * 30), //Schedule check every 30 minutes
+                PendingIntent.getService(this, 0, in, 0)
+        );
+        System.out.println("Scheduling Next Check");
         System.out.println("Destroying Process");
     }
 
