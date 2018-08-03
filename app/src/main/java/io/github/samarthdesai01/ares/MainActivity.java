@@ -64,20 +64,27 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     String[] array = new String[]{"",""};
-                    Intent in = new Intent(MainActivity.this,OrderUpdates.class);
+                    final Intent in = new Intent(MainActivity.this,OrderUpdates.class);
                     Bundle bundle = new Bundle();
                     bundle.putStringArray("loginInfo", array);
                     in.putExtras(bundle);
 
-//                    PendingIntent alarmIn = PendingIntent.getService(getApplicationContext(), PendingIntent.FLAG_UPDATE_CURRENT, in, PendingIntent.FLAG_UPDATE_CURRENT);
-//
-//                    AlarmManager alarmMgr = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-//                    alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),
-//                            1000 * 60 * 2, alarmIn);
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            final PendingIntent alarmIn = PendingIntent.getService(getApplicationContext(), PendingIntent.FLAG_UPDATE_CURRENT, in, PendingIntent.FLAG_UPDATE_CURRENT);
+//                            final AlarmManager alarmMgr = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+//                            alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),
+//                                    1000 * 60 * 1, alarmIn);
+//                        }
+//                    });
+
 
                     startService(in);
                 }
             }, 1000);
+
+
         }
     }
 

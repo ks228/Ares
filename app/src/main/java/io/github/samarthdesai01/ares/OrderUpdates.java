@@ -1,6 +1,7 @@
 package io.github.samarthdesai01.ares;
 
 import android.app.AlarmManager;
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -9,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.PixelFormat;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -45,13 +47,38 @@ public class OrderUpdates extends Service {
     int numAttempts = 0;
     String login[];
     WebView wv;
+    Intent initialIntent;
+    boolean isServiceRunning = false;
     public OrderUpdates() {
     }
-
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
+
+        initialIntent = intent;
+
+        if(!isServiceRunning){
+            Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
+            notificationIntent.setAction("Open App");  // A string containing the action name
+            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            PendingIntent contentPendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+
+            Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_markunread_mailbox_black_24dp);
+
+            Notification notification = new NotificationCompat.Builder(this, "orderListener")
+                    .setContentTitle("Package Listener")
+                    .setTicker("Package Listener")
+                    .setContentText("Get delivery updates as soon as they occur")
+                    .setSmallIcon(R.drawable.ic_markunread_mailbox_black_24dp)
+                    .setContentIntent(contentPendingIntent)
+                    .setOngoing(true)
+                    .build();
+            notification.flags = notification.flags | Notification.FLAG_NO_CLEAR;     // NO_CLEAR makes the notification stay when the user performs a "delete all" command
+            startForeground( 99, notification);
+            isServiceRunning = true;
+        }
+
 
         //Code for initializing Notification Channels or Oreo and above.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -62,6 +89,13 @@ public class OrderUpdates extends Service {
             channel.setDescription(description);
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
+
+            CharSequence name2 = "Order Listener";
+            String description2 = "Get notified regarding active orders";
+            int importance2 = NotificationManager.IMPORTANCE_MIN;
+            NotificationChannel channel2 = new NotificationChannel("orderListener", name2, importance2);
+            channel.setDescription(description2);
+            notificationManager.createNotificationChannel(channel2);;
         }
 
 
@@ -70,8 +104,6 @@ public class OrderUpdates extends Service {
         login = intent.getExtras().getStringArray("loginInfo");
         final String username = login[0];
         final String password = login[1];
-        System.out.println(username);
-        System.out.println(password);
 
         final WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         final WindowManager.LayoutParams params;
@@ -102,20 +134,19 @@ public class OrderUpdates extends Service {
         wv = new WebView(getBaseContext());
         WebSettings webSettings = wv.getSettings();
         webSettings.setJavaScriptEnabled(true);
-
         wv.setWebViewClient(new WebViewClient() {
 
             @Override
             public void onPageFinished(WebView view, String url){
                 super.onPageFinished(view, url);
                 if(url.contains("openid")){
-                    System.out.println("Hello Login");
+                    System.out.println("On Login");
                     wv.loadUrl("javascript: document.getElementById('ap_email_login').value='" + username + "';\n" +
                             "var elems = document.getElementsByClassName('a-button-input');\n" +
                             "elems[3].click()");
                 }
                 if(url.contains("/ap/signin") ){
-                    System.out.println("On signin");
+                    System.out.println("On SignIn");
                     if(numAttempts < 2){
                         wv.loadUrl("javascript: document.getElementById('ap_password').value='"+ password +"';\n" +
                                 "          document.getElementById('signInSubmit').click();");
@@ -126,7 +157,7 @@ public class OrderUpdates extends Service {
                 }
                 if(url.contains("order-history") && !url.contains("ap/signin")){
                     numAttempts = 0;
-                    System.out.println("got to orders page HELLO");
+                    System.out.println("Landed on Orders Page");
                     wv.evaluateJavascript("(function() { return document.getElementById('ordersContainer').innerHTML.toString(); })();",
                             new ValueCallback<String>() {
                                 @Override
@@ -146,25 +177,25 @@ public class OrderUpdates extends Service {
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon){
                   System.out.println(url);
-                final Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(wv.getProgress() < 80){
-                            handler.postDelayed(this, 100);
-                            //System.out.println(wv.getProgress());
-                        }else{
-                            new Handler().postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    System.out.println("Over 80!");
-
-                                }
-                            }, 800);
-
-                        }
-                    }
-                }, 100);
+//                final Handler handler = new Handler();
+//                handler.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        if(wv.getProgress() < 80){
+//                            handler.postDelayed(this, 100);
+//                            //System.out.println(wv.getProgress());
+//                        }else{
+//                            new Handler().postDelayed(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    System.out.println("Over 80!");
+//
+//                                }
+//                            }, 800);
+//
+//                        }
+//                    }
+//                }, 100);
             }
 
             @Override
@@ -192,7 +223,7 @@ public class OrderUpdates extends Service {
             }
         }, 1000);
 
-        return START_REDELIVER_INTENT;
+        return START_STICKY;
     }
 
     @Override
@@ -204,20 +235,6 @@ public class OrderUpdates extends Service {
     @Override
     public void onDestroy(){
         wv.destroy();
-
-        String[] array = login;
-        Intent in = new Intent(OrderUpdates.this,OrderUpdates.class);
-        Bundle bundle = new Bundle();
-        bundle.putStringArray("loginInfo", array);
-        in.putExtras(bundle);
-
-        AlarmManager alarm = (AlarmManager)getSystemService(ALARM_SERVICE);
-        alarm.set(
-                alarm.RTC_WAKEUP,
-                System.currentTimeMillis() + (1000 * 60 * 5), //Schedule check every 30 minutes
-                PendingIntent.getService(OrderUpdates.this, 0, in, 0)
-        );
-        System.out.println("Scheduling Next Check");
         System.out.println("Destroying Process");
     }
 
@@ -264,21 +281,30 @@ public class OrderUpdates extends Service {
             json = g.toJson(packageInfo);
             prefEdit.putString("packageData",json);
             prefEdit.commit();
-            stopSelf();
+            wv.destroy();
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    onStartCommand(initialIntent, 0, 0);
+                }
+            }, 1000 * 60 * 30);
         }
         if(packages.size() != 0){
+            int uniqueNotifID = 0;
             for(PackageInfo p : packageInfo){ //Loop through all active packages
                 for(PackageInfo previousp : packages){
                     if(p.packageName.equals(previousp.packageName)){
-                        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "orderUpdates")
-                                .setSmallIcon(R.drawable.ic_markunread_mailbox_black_24dp)
-                                .setContentTitle(p.packagePrimaryStatus)
-                                .setContentText(p.packageName)
-                                .setPriority(NotificationCompat.PRIORITY_HIGH);
-
+                        uniqueNotifID++;
+//                        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "orderUpdates")
+//                                .setSmallIcon(R.drawable.ic_markunread_mailbox_black_24dp)
+//                                .setContentTitle(p.packagePrimaryStatus)
+//                                .setContentText(p.packageName)
+//                                .setPriority(NotificationCompat.PRIORITY_HIGH);
+                        NotificationCompat.Builder mBuilder;
                         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
                         //Check if it's the same package
-                        notificationManager.notify(3, mBuilder.build());
+                        //notificationManager.notify(0, mBuilder.build());
                         if(p.packagePrimaryStatus!= null && previousp.packagePrimaryStatus != null){
                             if((!p.packagePrimaryStatus.equals(previousp.packagePrimaryStatus))){
                                 System.out.println("Status Update!");
@@ -287,7 +313,7 @@ public class OrderUpdates extends Service {
                                         .setContentTitle(p.packagePrimaryStatus)
                                         .setContentText(p.packageName)
                                         .setPriority(NotificationCompat.PRIORITY_HIGH);
-                                notificationManager.notify(1, mBuilder.build());
+                                notificationManager.notify(uniqueNotifID, mBuilder.build());
                             }
                             else{
                                 if(previousp.packageShortStatus == null && p.packageShortStatus != null){
@@ -296,7 +322,7 @@ public class OrderUpdates extends Service {
                                             .setContentTitle("Your package has shipped")
                                             .setContentText(p.packageName)
                                             .setPriority(NotificationCompat.PRIORITY_HIGH);
-                                    notificationManager.notify(2, mBuilder.build());
+                                    notificationManager.notify(uniqueNotifID + 100, mBuilder.build()); //Add 100 to notif ID to prevent notif id collisions
                                 }
                             }
                         }
@@ -311,6 +337,15 @@ public class OrderUpdates extends Service {
         prefEdit.putString("packageData",json);
         prefEdit.commit();
         System.out.println("Stored new data");
-        stopSelf();
+        //stopSelf();
+        wv.destroy();
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                onStartCommand(initialIntent, 0, 0);
+            }
+        }, 1000 * 60 * 30);
+
     }
 }
