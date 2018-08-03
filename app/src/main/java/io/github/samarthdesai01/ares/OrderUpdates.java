@@ -192,7 +192,7 @@ public class OrderUpdates extends Service {
             }
         }, 1000);
 
-        return START_NOT_STICKY;
+        return START_REDELIVER_INTENT;
     }
 
     @Override
@@ -206,7 +206,7 @@ public class OrderUpdates extends Service {
         wv.destroy();
 
         String[] array = login;
-        Intent in = new Intent(this,OrderUpdates.class);
+        Intent in = new Intent(OrderUpdates.this,OrderUpdates.class);
         Bundle bundle = new Bundle();
         bundle.putStringArray("loginInfo", array);
         in.putExtras(bundle);
@@ -214,8 +214,8 @@ public class OrderUpdates extends Service {
         AlarmManager alarm = (AlarmManager)getSystemService(ALARM_SERVICE);
         alarm.set(
                 alarm.RTC_WAKEUP,
-                System.currentTimeMillis() + (1000 * 60 * 30), //Schedule check every 30 minutes
-                PendingIntent.getService(this, 0, in, 0)
+                System.currentTimeMillis() + (1000 * 60 * 5), //Schedule check every 30 minutes
+                PendingIntent.getService(OrderUpdates.this, 0, in, 0)
         );
         System.out.println("Scheduling Next Check");
         System.out.println("Destroying Process");
@@ -270,9 +270,15 @@ public class OrderUpdates extends Service {
             for(PackageInfo p : packageInfo){ //Loop through all active packages
                 for(PackageInfo previousp : packages){
                     if(p.packageName.equals(previousp.packageName)){
-                        NotificationCompat.Builder mBuilder;
+                        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "orderUpdates")
+                                .setSmallIcon(R.drawable.ic_markunread_mailbox_black_24dp)
+                                .setContentTitle(p.packagePrimaryStatus)
+                                .setContentText(p.packageName)
+                                .setPriority(NotificationCompat.PRIORITY_HIGH);
+
                         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
                         //Check if it's the same package
+                        notificationManager.notify(3, mBuilder.build());
                         if(p.packagePrimaryStatus!= null && previousp.packagePrimaryStatus != null){
                             if((!p.packagePrimaryStatus.equals(previousp.packagePrimaryStatus))){
                                 System.out.println("Status Update!");
@@ -290,6 +296,7 @@ public class OrderUpdates extends Service {
                                             .setContentTitle("Your package has shipped")
                                             .setContentText(p.packageName)
                                             .setPriority(NotificationCompat.PRIORITY_HIGH);
+                                    notificationManager.notify(2, mBuilder.build());
                                 }
                             }
                         }

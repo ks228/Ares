@@ -1,5 +1,7 @@
 package io.github.samarthdesai01.ares;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -66,6 +68,13 @@ public class MainActivity extends AppCompatActivity {
                     Bundle bundle = new Bundle();
                     bundle.putStringArray("loginInfo", array);
                     in.putExtras(bundle);
+
+//                    PendingIntent alarmIn = PendingIntent.getService(getApplicationContext(), PendingIntent.FLAG_UPDATE_CURRENT, in, PendingIntent.FLAG_UPDATE_CURRENT);
+//
+//                    AlarmManager alarmMgr = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+//                    alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),
+//                            1000 * 60 * 2, alarmIn);
+
                     startService(in);
                 }
             }, 1000);
@@ -74,7 +83,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void getWebsite() {
 
-
+        //TODO: Add login screen for notifications
+        //TODO: On login screen, first ask for overlay permission on submit, then start service
+        //TODO: Show toast saying info went through
+        //TODO: Stop service from rescheduling if we couldn't get to order page
+        //TODO: Login screen will ask for login details and permissions but the service will triggered in Oncreate
         /**
          * CODE TO SUBMIT USERNAME
          * document.getElementById('ap_email_login').value='samarthdesai@utexas.edu'; //Fill out text field
