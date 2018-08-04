@@ -57,6 +57,31 @@ public class OrderUpdates extends Service {
         super.onStartCommand(intent, flags, startId);
 
         initialIntent = intent;
+        //Code for initializing Notification Channels or Oreo and above.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "Order Updates";
+            String description = "Get notified regarding active orders";
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel channel = new NotificationChannel("orderUpdates", name, importance);
+            channel.setDescription(description);
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+
+            CharSequence name2 = "Order Listener";
+            String description2 = "Get notified regarding active orders";
+            int importance2 = NotificationManager.IMPORTANCE_MIN;
+            NotificationChannel channel2 = new NotificationChannel("orderListener", name2, importance2);
+            channel.setDescription(description2);
+            notificationManager.createNotificationChannel(channel2);;
+
+            CharSequence name3 = "Errors";
+            String description3 = "Get notified regarding login issues";
+            int importance3 = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel channel3 = new NotificationChannel("errorChannel", name3, importance3);
+            channel.setDescription(description3);
+            notificationManager.createNotificationChannel(channel3);;
+
+        }
 
         if(!isServiceRunning){
             Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
@@ -80,24 +105,14 @@ public class OrderUpdates extends Service {
         }
 
 
-        //Code for initializing Notification Channels or Oreo and above.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "Order Updates";
-            String description = "Get notified regarding active orders";
-            int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel channel = new NotificationChannel("orderUpdates", name, importance);
-            channel.setDescription(description);
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
 
-            CharSequence name2 = "Order Listener";
-            String description2 = "Get notified regarding active orders";
-            int importance2 = NotificationManager.IMPORTANCE_MIN;
-            NotificationChannel channel2 = new NotificationChannel("orderListener", name2, importance2);
-            channel.setDescription(description2);
-            notificationManager.createNotificationChannel(channel2);;
-        }
 
+        final NotificationCompat.Builder errorBuilder =  new NotificationCompat.Builder(this, "errorChannel")
+                .setSmallIcon(R.drawable.ic_markunread_mailbox_black_24dp)
+                .setContentTitle("Error checking packages")
+                .setContentText("Check connection and/or login info and restart package service")
+                .setPriority(NotificationCompat.PRIORITY_HIGH);
+        final NotificationManagerCompat errorNotificationManager = NotificationManagerCompat.from(this);
 
         System.out.println("Started command");
 
@@ -139,11 +154,20 @@ public class OrderUpdates extends Service {
             @Override
             public void onPageFinished(WebView view, String url){
                 super.onPageFinished(view, url);
+
                 if(url.contains("openid")){
                     System.out.println("On Login");
-                    wv.loadUrl("javascript: document.getElementById('ap_email_login').value='" + username + "';\n" +
-                            "var elems = document.getElementsByClassName('a-button-input');\n" +
-                            "elems[3].click()");
+                    if(numAttempts < 2){
+                        wv.loadUrl("javascript: document.getElementById('ap_email_login').value='" + username + "';\n" +
+                                "var elems = document.getElementsByClassName('a-button-input');\n" +
+                                "elems[3].click()");
+                    }else{
+                        System.out.println("Sign in fail at open id");
+                        errorNotificationManager.notify(111, errorBuilder.build());
+                        stopSelf();
+                    }
+                    numAttempts++;
+
                 }
                 if(url.contains("/ap/signin") ){
                     System.out.println("On SignIn");
@@ -151,6 +175,10 @@ public class OrderUpdates extends Service {
                         wv.loadUrl("javascript: document.getElementById('ap_password').value='"+ password +"';\n" +
                                 "          document.getElementById('signInSubmit').click();");
                         System.out.println("Tried sign in");
+                    }else{
+                        System.out.println("Sign in fail");
+                        errorNotificationManager.notify(111, errorBuilder.build());
+                        stopSelf();
                     }
                     numAttempts++;
 
@@ -166,6 +194,7 @@ public class OrderUpdates extends Service {
                                     if(html != null){
                                         processPackageInfo(html);
                                     }else{
+                                        errorNotificationManager.notify(111, errorBuilder.build());
                                         stopSelf();
                                     }
                                 }
@@ -177,25 +206,6 @@ public class OrderUpdates extends Service {
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon){
                   System.out.println(url);
-//                final Handler handler = new Handler();
-//                handler.postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        if(wv.getProgress() < 80){
-//                            handler.postDelayed(this, 100);
-//                            //System.out.println(wv.getProgress());
-//                        }else{
-//                            new Handler().postDelayed(new Runnable() {
-//                                @Override
-//                                public void run() {
-//                                    System.out.println("Over 80!");
-//
-//                                }
-//                            }, 800);
-//
-//                        }
-//                    }
-//                }, 100);
             }
 
             @Override
@@ -219,7 +229,6 @@ public class OrderUpdates extends Service {
                     windowManager.addView(wv, params); //This needs to be here for the webview to function
                     //Even though this is never called it still runs properly for some reason
                 }
-
             }
         }, 1000);
 
@@ -330,22 +339,20 @@ public class OrderUpdates extends Service {
                     }
                 }
             }
+
+            json = g.toJson(packageInfo);
+            prefEdit.putString("packageData",json);
+            prefEdit.commit();
+            System.out.println("Stored new data");
+            //stopSelf();
+            wv.destroy();
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    onStartCommand(initialIntent, 0, 0);
+                }
+            }, 1000 * 60 * 30);
         }
-
-        //Now store packageInfo as the new
-        json = g.toJson(packageInfo);
-        prefEdit.putString("packageData",json);
-        prefEdit.commit();
-        System.out.println("Stored new data");
-        //stopSelf();
-        wv.destroy();
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                onStartCommand(initialIntent, 0, 0);
-            }
-        }, 1000 * 60 * 30);
-
     }
 }

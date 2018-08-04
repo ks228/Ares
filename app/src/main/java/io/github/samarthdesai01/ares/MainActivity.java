@@ -68,21 +68,9 @@ public class MainActivity extends AppCompatActivity {
                     Bundle bundle = new Bundle();
                     bundle.putStringArray("loginInfo", array);
                     in.putExtras(bundle);
-
-//                    runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            final PendingIntent alarmIn = PendingIntent.getService(getApplicationContext(), PendingIntent.FLAG_UPDATE_CURRENT, in, PendingIntent.FLAG_UPDATE_CURRENT);
-//                            final AlarmManager alarmMgr = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-//                            alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),
-//                                    1000 * 60 * 1, alarmIn);
-//                        }
-//                    });
-
-
                     startService(in);
                 }
-            }, 1000);
+            }, 5000);
 
 
         }
@@ -300,7 +288,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean onMenuItemActionCollapse(MenuItem menuItem) {
-
                 return true;
             }
         };
@@ -335,6 +322,7 @@ public class MainActivity extends AppCompatActivity {
                         myWebView.goBack();
                     } else {
                         finish();
+                        myWebView.clearCache(false);
                     }
                     return true;
             }
@@ -343,6 +331,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onKeyDown(keyCode, event);
     }
 
+    //Method used to update the share link when navigating to a new page
     public Intent updateIntent(){
         String currentURL = myWebView.getUrl();
         //strip the extraneous ref header on the URL for shorter links to send
@@ -363,6 +352,7 @@ public class MainActivity extends AppCompatActivity {
         window.setStatusBarColor(Color.parseColor("#FF303F9F"));
     }
 
+    //Method to set the drawer header text
     public void setGreetingText(String html){
         TextView userGreeting;
         userGreeting = findViewById(R.id.greetingText);
