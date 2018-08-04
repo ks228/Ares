@@ -83,7 +83,7 @@ public class OrderUpdates extends Service {
 
         }
 
-        if(!isServiceRunning){
+        //if(!isServiceRunning){
             Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
             notificationIntent.setAction("Open App");  // A string containing the action name
             notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -102,7 +102,7 @@ public class OrderUpdates extends Service {
             notification.flags = notification.flags | Notification.FLAG_NO_CLEAR;     // NO_CLEAR makes the notification stay when the user performs a "delete all" command
             startForeground( 99, notification);
             isServiceRunning = true;
-        }
+        //}
 
 
 
@@ -269,6 +269,7 @@ public class OrderUpdates extends Service {
             System.out.println(currentPackage.toString());
 
         }
+        packages.add(new PackageInfo("Test", "junk", "Arriving Today", "Test"));
 
         //stopSelf();
         checkStatusChanges(packages);
@@ -285,37 +286,24 @@ public class OrderUpdates extends Service {
             json = preferences.getString("packageData", "");
             Type type = new TypeToken<ArrayList<PackageInfo>>(){}.getType();
             packages = g.fromJson(json, type);
-        }else{ //First run, store data and stop service
-            System.out.println("First Storage");
-            json = g.toJson(packageInfo);
-            prefEdit.putString("packageData",json);
-            prefEdit.commit();
-            wv.destroy();
-            final Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    onStartCommand(initialIntent, 0, 0);
-                }
-            }, 1000 * 60 * 30);
-        }
-        if(packages.size() != 0){
             int uniqueNotifID = 0;
             for(PackageInfo p : packageInfo){ //Loop through all active packages
                 for(PackageInfo previousp : packages){
                     if(p.packageName.equals(previousp.packageName)){
+                        Log.i("package", p.packageName);
                         uniqueNotifID++;
-//                        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "orderUpdates")
-//                                .setSmallIcon(R.drawable.ic_markunread_mailbox_black_24dp)
-//                                .setContentTitle(p.packagePrimaryStatus)
-//                                .setContentText(p.packageName)
-//                                .setPriority(NotificationCompat.PRIORITY_HIGH);
-                        NotificationCompat.Builder mBuilder;
+                        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "orderUpdates")
+                                .setSmallIcon(R.drawable.ic_markunread_mailbox_black_24dp)
+                                .setContentTitle(p.packagePrimaryStatus)
+                                .setContentText(p.packageName)
+                                .setPriority(NotificationCompat.PRIORITY_HIGH);
+                        //NotificationCompat.Builder mBuilder;
                         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
                         //Check if it's the same package
-                        //notificationManager.notify(0, mBuilder.build());
+                        notificationManager.notify(10101, mBuilder.build());
                         if(p.packagePrimaryStatus!= null && previousp.packagePrimaryStatus != null){
                             if((!p.packagePrimaryStatus.equals(previousp.packagePrimaryStatus))){
+
                                 System.out.println("Status Update!");
                                 mBuilder = new NotificationCompat.Builder(this, "orderUpdates")
                                         .setSmallIcon(R.drawable.ic_markunread_mailbox_black_24dp)
@@ -352,7 +340,20 @@ public class OrderUpdates extends Service {
                 public void run() {
                     onStartCommand(initialIntent, 0, 0);
                 }
-            }, 1000 * 60 * 30);
+            }, 1000 * 60 * 5);
+        }else{ //First run, store data and stop service
+            System.out.println("First Storage");
+            json = g.toJson(packageInfo);
+            prefEdit.putString("packageData",json);
+            prefEdit.commit();
+            wv.destroy();
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    onStartCommand(initialIntent, 0, 0);
+                }
+            }, 1000 * 60 * 5);
         }
     }
 }
