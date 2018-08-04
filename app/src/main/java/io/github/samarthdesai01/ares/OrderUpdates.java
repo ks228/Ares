@@ -269,7 +269,7 @@ public class OrderUpdates extends Service {
             System.out.println(currentPackage.toString());
 
         }
-        packages.add(new PackageInfo("Test", "junk", "Arriving Today", "Test"));
+        //packages.add(new PackageInfo("Test", "junk", "Arriving Today", "Test"));
 
         //stopSelf();
         checkStatusChanges(packages);
@@ -292,15 +292,15 @@ public class OrderUpdates extends Service {
                     if(p.packageName.equals(previousp.packageName)){
                         Log.i("package", p.packageName);
                         uniqueNotifID++;
-                        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "orderUpdates")
-                                .setSmallIcon(R.drawable.ic_markunread_mailbox_black_24dp)
-                                .setContentTitle(p.packagePrimaryStatus)
-                                .setContentText(p.packageName)
-                                .setPriority(NotificationCompat.PRIORITY_HIGH);
-                        //NotificationCompat.Builder mBuilder;
+//                        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "orderUpdates")
+//                                .setSmallIcon(R.drawable.ic_markunread_mailbox_black_24dp)
+//                                .setContentTitle(p.packagePrimaryStatus)
+//                                .setContentText(p.packageName)
+//                                .setPriority(NotificationCompat.PRIORITY_HIGH);
+                        NotificationCompat.Builder mBuilder;
                         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
                         //Check if it's the same package
-                        notificationManager.notify(10101, mBuilder.build());
+                        //notificationManager.notify(10101, mBuilder.build());
                         if(p.packagePrimaryStatus!= null && previousp.packagePrimaryStatus != null){
                             if((!p.packagePrimaryStatus.equals(previousp.packagePrimaryStatus))){
 

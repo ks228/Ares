@@ -33,6 +33,7 @@ import android.webkit.ValueCallback;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -63,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    String[] array = new String[]{"",""};
+                    String[] array = new String[]{"samarthdesai@utexas.edu","Madhad!00"};
                     final Intent in = new Intent(MainActivity.this,OrderUpdates.class);
                     Bundle bundle = new Bundle();
                     bundle.putStringArray("loginInfo", array);
@@ -141,6 +142,9 @@ public class MainActivity extends AppCompatActivity {
                         return true;
                     }
                 });
+
+        Button navToNotif = findViewById(R.id.notifService);
+
 
     }
 
