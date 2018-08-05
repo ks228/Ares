@@ -72,7 +72,7 @@ public class NotifLogin extends AppCompatActivity {
                         }
                     }, 1000);
                 }else{
-                    Toast.makeText(this, "Make sure the overlay permission is on!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Make sure the overlay permission is on! This is required for checking delivery status", Toast.LENGTH_LONG).show();
                 }
             }
         }

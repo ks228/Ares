@@ -59,7 +59,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
-            android:text="Ensure you enable the Overlay Permission when prompted"
+            android:text="For Delivery Notifications, make sure the overlay permission is enabled"
             android:gravity="center"
             android:textSize="16dip"/>
 
