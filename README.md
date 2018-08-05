@@ -13,9 +13,9 @@ Ares is a fresh implementation of the Amazon Shopping app for Android focused on
  * Shop the entirety of Amazon
  * Search for products
  * Share from any screen
+ * Delivery status notifications
  * Download size 60x smaller than official app (~2MB)
  * Native UI Components
- * No Background Services
  * Battery Friendly
  * No extraneous notifications
  * Fast load times
@@ -24,8 +24,4 @@ Ares is a fresh implementation of the Amazon Shopping app for Android focused on
  * Access and edits lists
  * Manage account settings
 
-
 ## Upcoming Features
- * Delivery status notifications
- * Integrate profile picture into drawer header
-
