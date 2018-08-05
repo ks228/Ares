@@ -47,7 +47,7 @@ public class OrderUpdates extends Service {
     int numAttempts = 0;
     String login[];
     WebView wv;
-    Intent initialIntent;
+    private Intent initialIntent;
     boolean isServiceRunning = false;
     public OrderUpdates() {
     }
@@ -71,7 +71,7 @@ public class OrderUpdates extends Service {
             String description2 = "Get notified regarding active orders";
             int importance2 = NotificationManager.IMPORTANCE_MIN;
             NotificationChannel channel2 = new NotificationChannel("orderListener", name2, importance2);
-            channel.setDescription(description2);
+            channel2.setDescription(description2);
             notificationManager.createNotificationChannel(channel2);;
 
             CharSequence name3 = "Errors";
@@ -83,7 +83,6 @@ public class OrderUpdates extends Service {
 
         }
 
-        //if(!isServiceRunning){
             Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
             notificationIntent.setAction("Open App");  // A string containing the action name
             notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -97,14 +96,12 @@ public class OrderUpdates extends Service {
                     .setContentText("Get delivery updates as soon as they occur")
                     .setSmallIcon(R.drawable.ic_markunread_mailbox_black_24dp)
                     .setContentIntent(contentPendingIntent)
+                    .setPriority(Notification.PRIORITY_MIN)
                     .setOngoing(true)
                     .build();
             notification.flags = notification.flags | Notification.FLAG_NO_CLEAR;     // NO_CLEAR makes the notification stay when the user performs a "delete all" command
             startForeground( 99, notification);
             isServiceRunning = true;
-        //}
-
-
 
 
         final NotificationCompat.Builder errorBuilder =  new NotificationCompat.Builder(this, "errorChannel")
@@ -157,7 +154,7 @@ public class OrderUpdates extends Service {
 
                 if(url.contains("openid")){
                     System.out.println("On Login");
-                    if(numAttempts < 2){
+                    if(numAttempts < 5){
                         wv.loadUrl("javascript: document.getElementById('ap_email_login').value='" + username + "';\n" +
                                 "var elems = document.getElementsByClassName('a-button-input');\n" +
                                 "elems[3].click()");
@@ -171,7 +168,8 @@ public class OrderUpdates extends Service {
                 }
                 if(url.contains("/ap/signin") ){
                     System.out.println("On SignIn");
-                    if(numAttempts < 2){
+                    System.out.println(password);
+                    if(numAttempts < 5){
                         wv.loadUrl("javascript: document.getElementById('ap_password').value='"+ password +"';\n" +
                                 "          document.getElementById('signInSubmit').click();");
                         System.out.println("Tried sign in");
@@ -186,6 +184,7 @@ public class OrderUpdates extends Service {
                 if(url.contains("order-history") && !url.contains("ap/signin")){
                     numAttempts = 0;
                     System.out.println("Landed on Orders Page");
+                    System.out.println(password);
                     wv.evaluateJavascript("(function() { return document.getElementById('ordersContainer').innerHTML.toString(); })();",
                             new ValueCallback<String>() {
                                 @Override
