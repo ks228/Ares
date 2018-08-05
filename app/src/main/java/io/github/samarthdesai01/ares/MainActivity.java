@@ -1,12 +1,16 @@
 package io.github.samarthdesai01.ares;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
@@ -29,6 +33,7 @@ import android.webkit.ValueCallback;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -50,7 +55,32 @@ public class MainActivity extends AppCompatActivity {
         initializeWebView();
         initializeToolBar();
         initializeDrawer();
+        getWebsite();
+    }
 
+    private void getWebsite() {
+
+        //TODO: Add login screen for notifications
+        //TODO: On login screen, first ask for overlay permission on submit, then start service
+        //TODO: Show toast saying info went through
+        //TODO: Stop service from rescheduling if we couldn't get to order page
+        //TODO: Login screen will ask for login details and permissions but the service will triggered in Oncreate
+        /**
+         * CODE TO SUBMIT USERNAME
+         * document.getElementById('ap_email_login').value='samarthdesai@utexas.edu'; //Fill out text field
+         * var elems = document.getElementsByClassName('a-button-input'); //Find correct submit button
+         * elems[3].click() //Click to move on to password
+         * Now wait for redirect
+         * document.getElementById('ap_password).value='ur pass'
+         * document.getElementById('signInSubmit').click();
+         * should be signed in now, now get orders
+         *
+         * load amazon webpage, on page finished check if url contains openid or signin
+         * if true, then run first half of code to fill out form with your info
+         * then have code to check if url contains signin only and ap
+         * if true then hit signinsubmit
+         * then check if url contains orders if so then we can run our usual scraping code.
+         */
     }
 
     public void initializeToolBar(){
@@ -64,6 +94,40 @@ public class MainActivity extends AppCompatActivity {
     public void initializeDrawer(){
         //Navigation Drawer Layout
         mDrawerLayout = findViewById(R.id.drawer_layout);
+
+        mDrawerLayout.addDrawerListener(
+                new DrawerLayout.DrawerListener() {
+                    @Override
+                    public void onDrawerSlide(View drawerView, float slideOffset) {
+                        // Respond when the drawer's position changes
+                    }
+
+                    @Override
+                    public void onDrawerOpened(View drawerView) {
+                        Button navToNotif = findViewById(R.id.notifService);
+
+                        navToNotif.setOnClickListener(new View.OnClickListener(){
+                            public void onClick(View v){
+                                Intent navToLogin = new Intent(MainActivity.this, NotifLogin.class);
+                                MainActivity.this.startActivity(navToLogin);
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onDrawerClosed(View drawerView) {
+                        // Respond when the drawer is closed
+                    }
+
+                    @Override
+                    public void onDrawerStateChanged(int newState) {
+                        // Respond when the drawer motion state changes
+                    }
+                }
+        );
+
+
+
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
@@ -93,6 +157,8 @@ public class MainActivity extends AppCompatActivity {
                         return true;
                     }
                 });
+
+
 
     }
 
@@ -171,6 +237,7 @@ public class MainActivity extends AppCompatActivity {
         WebSettings webSettings = myWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
 
+
         myWebView.loadUrl("https://www.amazon.com/");
     }
 
@@ -239,7 +306,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean onMenuItemActionCollapse(MenuItem menuItem) {
-
                 return true;
             }
         };
@@ -274,6 +340,7 @@ public class MainActivity extends AppCompatActivity {
                         myWebView.goBack();
                     } else {
                         finish();
+                        myWebView.clearCache(false);
                     }
                     return true;
             }
@@ -282,6 +349,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onKeyDown(keyCode, event);
     }
 
+    //Method used to update the share link when navigating to a new page
     public Intent updateIntent(){
         String currentURL = myWebView.getUrl();
         //strip the extraneous ref header on the URL for shorter links to send
@@ -302,6 +370,7 @@ public class MainActivity extends AppCompatActivity {
         window.setStatusBarColor(Color.parseColor("#FF303F9F"));
     }
 
+    //Method to set the drawer header text
     public void setGreetingText(String html){
         TextView userGreeting;
         userGreeting = findViewById(R.id.greetingText);

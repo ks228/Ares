@@ -25,5 +25,4 @@
         <item name="android:editTextColor">@android:color/white</item>
         <item name="android:textColorSecondary">#AAFFFFFF</item>
     </style>
-
 </resources>
