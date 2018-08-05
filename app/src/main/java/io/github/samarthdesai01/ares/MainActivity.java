@@ -56,25 +56,6 @@ public class MainActivity extends AppCompatActivity {
         initializeToolBar();
         initializeDrawer();
         getWebsite();
-        if (android.os.Build.VERSION.SDK_INT >= 23 && !Settings.canDrawOverlays(this)) {   //Android M Or Over
-            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
-            startActivityForResult(intent, 100 );
-        }
-        if(Settings.canDrawOverlays(this)){
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    String[] array = new String[]{"samarthdesai@utexas.edu","Madhad!00"};
-                    final Intent in = new Intent(MainActivity.this,OrderUpdates.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putStringArray("loginInfo", array);
-                    in.putExtras(bundle);
-                    startService(in);
-                }
-            }, 5000);
-
-
-        }
     }
 
     private void getWebsite() {
@@ -113,6 +94,40 @@ public class MainActivity extends AppCompatActivity {
     public void initializeDrawer(){
         //Navigation Drawer Layout
         mDrawerLayout = findViewById(R.id.drawer_layout);
+
+        mDrawerLayout.addDrawerListener(
+                new DrawerLayout.DrawerListener() {
+                    @Override
+                    public void onDrawerSlide(View drawerView, float slideOffset) {
+                        // Respond when the drawer's position changes
+                    }
+
+                    @Override
+                    public void onDrawerOpened(View drawerView) {
+                        Button navToNotif = findViewById(R.id.notifService);
+
+                        navToNotif.setOnClickListener(new View.OnClickListener(){
+                            public void onClick(View v){
+                                Intent navToLogin = new Intent(MainActivity.this, NotifLogin.class);
+                                MainActivity.this.startActivity(navToLogin);
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onDrawerClosed(View drawerView) {
+                        // Respond when the drawer is closed
+                    }
+
+                    @Override
+                    public void onDrawerStateChanged(int newState) {
+                        // Respond when the drawer motion state changes
+                    }
+                }
+        );
+
+
+
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
@@ -143,7 +158,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-        Button navToNotif = findViewById(R.id.notifService);
 
 
     }

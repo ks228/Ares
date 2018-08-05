@@ -200,6 +200,10 @@ public class OrderUpdates extends Service {
                                 }
                             });
                 }
+                if(url.contains("ERROR")){
+                    errorNotificationManager.notify(111, errorBuilder.build());
+                    stopSelf();
+                }
 
             }
 
