@@ -55,34 +55,8 @@ public class MainActivity extends AppCompatActivity {
         initializeWebView();
         initializeToolBar();
         initializeDrawer();
-        getWebsite();
     }
-
-    private void getWebsite() {
-
-        //TODO: Add login screen for notifications
-        //TODO: On login screen, first ask for overlay permission on submit, then start service
-        //TODO: Show toast saying info went through
-        //TODO: Stop service from rescheduling if we couldn't get to order page
-        //TODO: Login screen will ask for login details and permissions but the service will triggered in Oncreate
-        /**
-         * CODE TO SUBMIT USERNAME
-         * document.getElementById('ap_email_login').value='samarthdesai@utexas.edu'; //Fill out text field
-         * var elems = document.getElementsByClassName('a-button-input'); //Find correct submit button
-         * elems[3].click() //Click to move on to password
-         * Now wait for redirect
-         * document.getElementById('ap_password).value='ur pass'
-         * document.getElementById('signInSubmit').click();
-         * should be signed in now, now get orders
-         *
-         * load amazon webpage, on page finished check if url contains openid or signin
-         * if true, then run first half of code to fill out form with your info
-         * then have code to check if url contains signin only and ap
-         * if true then hit signinsubmit
-         * then check if url contains orders if so then we can run our usual scraping code.
-         */
-    }
-
+    
     public void initializeToolBar(){
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
